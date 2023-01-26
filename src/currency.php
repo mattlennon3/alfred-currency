@@ -2,7 +2,7 @@
 
 function getRow($currency_from, $currency_to, $amount){
   // build URL
-  $url = "https://v6.exchangerate-api.com/v6/f3a28ea08292d915f7e45eee/pair/" . $currency_from . "/" . $currency_to;
+  $url = "https://v6.exchangerate-api.com/v6/" . getenv('API_KEY') . "/pair/" . $currency_from . "/" . $currency_to;
 
   // get exchange rate
   $options = array('http' => array('ignore_errors' => TRUE));
@@ -37,7 +37,7 @@ function getRow($currency_from, $currency_to, $amount){
     echo json_encode([
       "items" => [
           [
-              "title" => "Unsupported currency pair: " . $currency_from ." / " . $currency_to
+              "title" => "Error: " . $currency_from ." / " . $currency_to
           ]
       ]
     ]);
@@ -66,7 +66,7 @@ function getWaitingRow(){
   ]);
 }
 
-function getResult($query, $default_currency){
+function getResult($query){
 
   // Replace symbols
   $query = str_replace(
@@ -96,14 +96,14 @@ function getResult($query, $default_currency){
 
     $amount = $match_a_f_t[1];
     $currency_from = $match_a_f_t[2];
-    $currency_to = isset($match_a_f_t[3]) ? $match_a_f_t[3] : $default_currency;
+    $currency_to = isset($match_a_f_t[3]) ? $match_a_f_t[3] : getenv('DEFAULT_CURRENCY');
 
     getRow($currency_from, $currency_to, $amount);
   } elseif(!empty($match_f_a)){
     $currency_from = $match_f_a[1];
     $amount = $match_f_a[2];
 
-    getRow($currency_from, $default_currency, $amount);
+    getRow($currency_from, getenv('DEFAULT_CURRENCY'), $amount);
   } else {
     getWaitingRow();
   }
